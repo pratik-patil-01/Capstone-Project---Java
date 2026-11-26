@@ -5,7 +5,7 @@ public class Library {
     private final Map<String, Member> members;
     private final Map<String, Loan> loans;
     private final Map<String, Queue<String>> reservations;
-    private final int today;
+    private int today;
 
     public Library() {
         items = new HashMap<>();
@@ -15,34 +15,40 @@ public class Library {
         today = 0;
     }
 
-    public void addItem(LibraryItem i) { items.put(i.getId(), i);}
-    public void addMember(Member m) { members.put(m.getId(), m);}
+    public void addItem(LibraryItem i) { items.put(i.getId(), i); }
+    public void addMember(Member m) { members.put(m.getId(), m); }
+
+    public int advance(int d) {
+        today += d;
+        return today;
+    }
+
     public List<LibraryItem> inventory() {
         List<LibraryItem> res = new ArrayList<>(items.values());
         res.sort(Comparator.comparing(LibraryItem::getId));
-        return res; 
+        return res;
     }
+
     public String getStatus(LibraryItem i) {
-        if(!(i instanceof Borrowable)) return "NOT_BORROWABLE";
+        if (!(i instanceof Borrowable)) return "NOT_BORROWABLE";
         Loan loan = loans.get(i.getId());
-        if(loan != null) return "ON_LOAN|" + loan.getMember().getId();
+        if (loan != null) return "ON_LOAN|" + loan.getMember().getId();
         return "AVAILABLE";
     }
 
     public int borrow(String mi, String ii) {
         Member mem = findMember(mi);
-        if(mem == null) { 
-            System.out.println("ERROR member "  + mi + " not found");
+        if (mem == null) {
+            System.out.println("ERROR member " + mi + " not found");
             return -1;
         }
-
         LibraryItem i = findItem(ii);
-        if(i == null) {
-            System.out.println("ERROR item "  + ii + " not found");
+        if (i == null) {
+            System.out.println("ERROR item " + ii + " not found");
             return -1;
         }
-        if(!(i instanceof Borrowable)) {
-            System.out.println("ERROR "  + ii + " cannot be borrowed");
+        if (!(i instanceof Borrowable)) {
+            System.out.println("ERROR " + ii + " cannot be borrowed");
             return -1;
         }
         if (loans.containsKey(ii)) {
@@ -67,21 +73,20 @@ public class Library {
         if (loan == null) {
             return "ERROR " + ii + " is not on loan";
         }
-        return "OK fine 0";
+        return "OK fine " + loan.fine(today);
     }
-    
-    public LibraryItem findItem(String ii) { return items.get(ii);}
-    public Member findMember(String mi) { return members.get(mi);}
 
-    private int countLoansOf(String memberId) {
+    private LibraryItem findItem(String ii) { return items.get(ii); }
+    private Member findMember(String mi) { return members.get(mi); }
+
+    private int countLoansOf(String mi) {
         int count = 0;
         for (Loan loan : loans.values()) {
-            if (loan.getMember().getId().equals(memberId)) {
-                count++;
-            }
+            if (loan.getMember().getId().equals(mi)) count++;
         }
         return count;
     }
+
     private Loan issueTo(Member mem, LibraryItem item) {
         int dueDay = today + mem.getLoanPeriod();
         Loan loan = new Loan(mem, item, dueDay);

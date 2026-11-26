@@ -9,8 +9,11 @@ public class Loan {
         dueDay = d;
     }
 
-    public Member getMember() { return member;}
-    public LibraryItem getItem() { return item;}
-    public int getDueDay() { return dueDay;}
+    public Member getMember() { return member; }
+    public LibraryItem getItem() { return item; }
+    public int getDueDay() { return dueDay; }
 
+    public int daysLate(int today) { return Math.max(0, today - dueDay); }
+    public boolean isOverdue(int today) { return today > dueDay; }
+    public int fine(int today) { return daysLate(today) * ((Borrowable) item).getFinePerDay(); }
 }

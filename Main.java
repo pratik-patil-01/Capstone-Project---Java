@@ -45,6 +45,9 @@ public class Main {
             case "RETURN":
                 System.out.println(library.returnItem(parts[1]));
                 break;
+            case "ADVANCE":
+                System.out.println("OK today is day " + library.advance(Integer.parseInt(parts[1])));
+                break;
             case "INVENTORY":
                 List<LibraryItem> allItems = library.inventory();
                 if (allItems.isEmpty()) {
