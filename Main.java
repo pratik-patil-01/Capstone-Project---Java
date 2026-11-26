@@ -36,6 +36,15 @@ public class Main {
                 library.addMember(createMember(parts[1], parts[2], parts[3]));
                 System.out.println("OK");
                 break;
+            case "BORROW":
+                int dueDay = library.borrow(parts[1], parts[2]);
+                if (dueDay != -1) {
+                    System.out.println("OK due on day " + dueDay);
+                }
+                break;
+            case "RETURN":
+                System.out.println(library.returnItem(parts[1]));
+                break;
             case "INVENTORY":
                 List<LibraryItem> allItems = library.inventory();
                 if (allItems.isEmpty()) {

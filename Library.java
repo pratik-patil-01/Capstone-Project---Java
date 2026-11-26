@@ -29,4 +29,63 @@ public class Library {
         return "AVAILABLE";
     }
 
+    public int borrow(String mi, String ii) {
+        Member mem = findMember(mi);
+        if(mem == null) { 
+            System.out.println("ERROR member "  + mi + " not found");
+            return -1;
+        }
+
+        LibraryItem i = findItem(ii);
+        if(i == null) {
+            System.out.println("ERROR item "  + ii + " not found");
+            return -1;
+        }
+        if(!(i instanceof Borrowable)) {
+            System.out.println("ERROR "  + ii + " cannot be borrowed");
+            return -1;
+        }
+        if (loans.containsKey(ii)) {
+            System.out.println("ERROR " + ii + " is on loan");
+            return -1;
+        }
+        if (countLoansOf(mi) >= mem.getMaxItems()) {
+            System.out.println("ERROR " + mi + " has reached the limit of " + mem.getMaxItems());
+            return -1;
+        }
+
+        Loan loan = issueTo(mem, i);
+        return loan.getDueDay();
+    }
+
+    public String returnItem(String ii) {
+        LibraryItem item = findItem(ii);
+        if (item == null) {
+            return "ERROR item " + ii + " not found";
+        }
+        Loan loan = loans.remove(ii);
+        if (loan == null) {
+            return "ERROR " + ii + " is not on loan";
+        }
+        return "OK fine 0";
+    }
+    
+    public LibraryItem findItem(String ii) { return items.get(ii);}
+    public Member findMember(String mi) { return members.get(mi);}
+
+    private int countLoansOf(String memberId) {
+        int count = 0;
+        for (Loan loan : loans.values()) {
+            if (loan.getMember().getId().equals(memberId)) {
+                count++;
+            }
+        }
+        return count;
+    }
+    private Loan issueTo(Member mem, LibraryItem item) {
+        int dueDay = today + mem.getLoanPeriod();
+        Loan loan = new Loan(mem, item, dueDay);
+        loans.put(item.getId(), loan);
+        return loan;
+    }
 }
