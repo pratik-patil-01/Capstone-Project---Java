@@ -14,4 +14,19 @@ public class Library {
         reservations = new HashMap<>();
         today = 0;
     }
+
+    public void addItem(LibraryItem i) { items.put(i.getId(), i);}
+    public void addMember(Member m) { members.put(m.getId(), m);}
+    public List<LibraryItem> inventory() {
+        List<LibraryItem> res = new ArrayList<>(items.values());
+        res.sort(Comparator.comparing(LibraryItem::getId));
+        return res; 
+    }
+    public String getStatus(LibraryItem i) {
+        if(!(i instanceof Borrowable)) return "NOT_BORROWABLE";
+        Loan loan = loans.get(i.getId());
+        if(loan != null) return "ON_LOAN|" + loan.getMember().getId();
+        return "AVAILABLE";
+    }
+
 }

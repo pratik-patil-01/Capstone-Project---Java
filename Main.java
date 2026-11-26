@@ -1,25 +1,64 @@
+import java.util.List;
+import java.util.Scanner;
+
 public class Main {
-    public static void main(String args[]) {
-        LibraryItem book = new Book("b1", "intro to algo", "cormen");
-        LibraryItem mag = new Magazine("m1", "reso", "oct26");
-        LibraryItem ref = new ReferenceBook("r1", "mb", "vyas");
+    private static final Library library = new Library();
 
-        LibraryItem[] items = {book, mag, ref};
-        for(LibraryItem i : items) {
-            boolean bor = i instanceof Borrowable;
-            int fpd = bor ? ((Borrowable) i).getFinePerDay() : 0;
-            System.out.println(i.getId() + " " + i.getType() + ": borrowable = " + bor + ", finePerDay = " + fpd );
+    public static void main(String[] args) {
+        Scanner s = new Scanner(System.in);
+        while (s.hasNextLine()) {
+            String line = s.nextLine();
+            if (!line.isEmpty()) {
+                execute(line);
+            }
         }
+        s.close();
+    }
 
-        Member student = new Student("s1", "A");
-        Member staff = new Staff("t1", "R");
-        Member faculty = new Faculty("f1", "M");
+    private static void execute(String line) {
+        String[] parts = line.split("\\|");
+        String cmd = parts[0];
 
-        Member[] mem = {student, staff, faculty};
-        for (Member m : mem) {
-            System.out.println(m.getId() + " " + m.getName()
-                    + ", maxItems = " + m.getMaxItems()
-                    + ", loanPeriod = " + m.getLoanPeriod());
+        switch (cmd) {
+            case "ADD_BOOK":
+                library.addItem(new Book(parts[1], parts[2], parts[3]));
+                System.out.println("OK");
+                break;
+            case "ADD_MAGAZINE":
+                library.addItem(new Magazine(parts[1], parts[2], parts[3]));
+                System.out.println("OK");
+                break;
+            case "ADD_REFERENCE":
+                library.addItem(new ReferenceBook(parts[1], parts[2], parts[3]));
+                System.out.println("OK");
+                break;
+            case "ADD_MEMBER":
+                library.addMember(createMember(parts[1], parts[2], parts[3]));
+                System.out.println("OK");
+                break;
+            case "INVENTORY":
+                List<LibraryItem> allItems = library.inventory();
+                if (allItems.isEmpty()) {
+                    System.out.println("NONE");
+                } else {
+                    for (LibraryItem item : allItems) {
+                        System.out.println(item.getId() + "|" + item.getType() + "|" + library.getStatus(item));
+                    }
+                }
+                break;
+        }
+    }
+
+    private static Member createMember(String id, String name, String type) {
+        switch (type) {
+            case "STUDENT":
+                return new Student(id, name);
+            case "STAFF":
+                return new Staff(id, name);
+            case "FACULTY":
+                return new Faculty(id, name);
+            default:
+                throw new IllegalArgumentException("Unknown member type: " + type);
         }
     }
 }
