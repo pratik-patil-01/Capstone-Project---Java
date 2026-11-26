@@ -36,48 +36,44 @@ public class Library {
         return "AVAILABLE";
     }
 
-    public int borrow(String mi, String ii) {
+    public int borrow(String mi, String ii) throws LibraryException {
         Member mem = findMember(mi);
-        if (mem == null) {
-            System.out.println("ERROR member " + mi + " not found");
-            return -1;
-        }
         LibraryItem i = findItem(ii);
-        if (i == null) {
-            System.out.println("ERROR item " + ii + " not found");
-            return -1;
-        }
+
         if (!(i instanceof Borrowable)) {
-            System.out.println("ERROR " + ii + " cannot be borrowed");
-            return -1;
+            throw new ItemNotAvailableException(ii + " cannot be borrowed");
         }
         if (loans.containsKey(ii)) {
-            System.out.println("ERROR " + ii + " is on loan");
-            return -1;
+            throw new ItemNotAvailableException(ii + " is on loan");
         }
         if (countLoansOf(mi) >= mem.getMaxItems()) {
-            System.out.println("ERROR " + mi + " has reached the limit of " + mem.getMaxItems());
-            return -1;
+            throw new BorrowLimitExceededException(mi, mem.getMaxItems());
         }
 
         Loan loan = issueTo(mem, i);
         return loan.getDueDay();
     }
 
-    public String returnItem(String ii) {
-        LibraryItem item = findItem(ii);
-        if (item == null) {
-            return "ERROR item " + ii + " not found";
-        }
+    public String returnItem(String ii) throws LibraryException {
+        findItem(ii);
         Loan loan = loans.remove(ii);
         if (loan == null) {
-            return "ERROR " + ii + " is not on loan";
+            throw new ItemNotOnLoanException(ii);
         }
         return "OK fine " + loan.fine(today);
     }
 
-    private LibraryItem findItem(String ii) { return items.get(ii); }
-    private Member findMember(String mi) { return members.get(mi); }
+    private LibraryItem findItem(String ii) throws ItemNotFoundException {
+        LibraryItem i = items.get(ii);
+        if (i == null) throw new ItemNotFoundException(ii);
+        return i;
+    }
+
+    private Member findMember(String mi) throws MemberNotFoundException {
+        Member m = members.get(mi);
+        if (m == null) throw new MemberNotFoundException(mi);
+        return m;
+    }
 
     private int countLoansOf(String mi) {
         int count = 0;
