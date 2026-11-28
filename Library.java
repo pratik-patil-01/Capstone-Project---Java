@@ -15,12 +15,42 @@ public class Library {
         today = 0;
     }
 
+    public int getToday() { return today;} //as a helper func for main
     public void addItem(LibraryItem i) { items.put(i.getId(), i); }
     public void addMember(Member m) { members.put(m.getId(), m); }
 
     public int advance(int d) {
         today += d;
         return today;
+    }
+
+    public List<LibraryItem> search(String txt) {
+        String t = txt.toLowerCase();
+        List<LibraryItem> res = new ArrayList<>();
+        for( LibraryItem i : items.values()) {
+            if(i.getTitle().toLowerCase().contains(t)) res.add(i);
+        }
+        res.sort(Comparator.comparing(LibraryItem::getTitle));
+        return res;
+    }
+
+    public List<Loan> loansOf(String mi) throws MemberNotFoundException {
+        findMember(mi);
+        List<Loan> res = new ArrayList<>();
+        for(Loan l : loans.values()) {
+            if(l.getMember().getId().equals(mi)) res.add(l);
+        }
+        res.sort(Comparator.comparingInt(Loan::getDueDay).thenComparing(x -> x.getItem().getId()));
+        return res;
+    }
+
+    public List<Loan> overdue() {
+        List<Loan> res = new ArrayList<>();
+        for(Loan l : loans.values()) {
+            if(l.isOverdue(today)) res.add(l);
+        }
+        res.sort(Comparator.comparingInt((Loan x) -> x.daysLate(today)).thenComparing(x -> x.getItem().getId()));
+        return res;
     }
 
     public List<LibraryItem> inventory() {

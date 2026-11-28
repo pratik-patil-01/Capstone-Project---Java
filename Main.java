@@ -46,12 +46,37 @@ public class Main {
                 case "ADVANCE":
                     System.out.println("OK today is day " + library.advance(Integer.parseInt(parts[1])));
                     break;
+                case "SEARCH":
+                    List<LibraryItem> matches = library.search(parts[1]);
+                    if(matches.isEmpty()) System.out.println("NONE");
+                    else {
+                        for(LibraryItem i : matches) {
+                            System.out.println(i.getId() + "|" + i.getType() + "|" + i.getTitle());
+                        }
+                    }
+                    break;
+                case "LOANS":
+                    List<Loan> memLoans = library.loansOf(parts[1]);
+                    if(memLoans.isEmpty()) System.out.println("NONE");
+                    else {
+                        for(Loan l : memLoans) {
+                            System.out.println(l.getItem().getId() + "|" + l.getItem().getTitle() + "|" + l.getDueDay());
+                        }
+                    }
+                    break;
+                case "OVERDUE":
+                    List<Loan> lOd = library.overdue();
+                    if(lOd.isEmpty()) System.out.println("NONE");
+                    else {
+                        for(Loan l : lOd) {
+                            System.out.println(l.getItem().getId() + "|" + l.getMember().getId() + "|" + l.daysLate(library.getToday()) + "|" + l.fine(library.getToday()));                         }
+                    }
+                    break;
                 case "INVENTORY":
                     List<LibraryItem> allItems = library.inventory();
-                    if (allItems.isEmpty()) {
-                        System.out.println("NONE");
-                    } else {
-                        for (LibraryItem item : allItems) {
+                    if (allItems.isEmpty()) System.out.println("NONE");
+                    else {
+                        for(LibraryItem item : allItems) {
                             System.out.println(item.getId() + "|" + item.getType() + "|" + library.getStatus(item));
                         }
                     }
