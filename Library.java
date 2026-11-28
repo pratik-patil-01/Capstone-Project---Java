@@ -49,7 +49,7 @@ public class Library {
         for(Loan l : loans.values()) {
             if(l.isOverdue(today)) res.add(l);
         }
-        res.sort(Comparator.comparingInt((Loan x) -> x.daysLate(today)).thenComparing(x -> x.getItem().getId()));
+        res.sort(Comparator.comparingInt((Loan x) -> x.daysLate(today)).reversed().thenComparing(x -> x.getItem().getId()));
         return res;
     }
 
